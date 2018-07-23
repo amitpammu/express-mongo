@@ -4,7 +4,7 @@ mongoose.Promise = global.Promise;
 
 let db = {
     localhost: 'mongodb://localhost:27017/TodoApp',
-    mlab: 'mongodb://root:Welcome_2018@ds137687.mlab.com:37687/monnodejsgit'
+    mlab: 'mongodb://root:Welcome_2018@ds137687.mlab.com:37687/monnodejs'
   };
   mongoose.connect(db.mlab || db.localhost);
 
