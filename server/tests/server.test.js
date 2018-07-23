@@ -60,4 +60,22 @@ describe('GET /todos', () => {
 
 });
 
+describe('GET todos/id', () => {
+    var id = '5b51d379ad557311a43c2b49';
+    it("Should return the todo", (done) => {
+
+        request(app)
+            .get(`/todos/${id}`)
+            .expect(200)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                done();
+            });
+
+    });
+
+})
+
 
