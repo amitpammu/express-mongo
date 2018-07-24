@@ -2,6 +2,7 @@ require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const {authenticate} = require('./middleware/authenticate');
 
 const { ObjectID } = require('mongodb');
 const { mongoose } = require('./db/mongoose');
@@ -123,6 +124,14 @@ app.post('/users', (req, res) => {
         res.status(400).send(e);
     })
 
+});
+
+
+
+// GET users/me
+
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
 });
 
 //server port

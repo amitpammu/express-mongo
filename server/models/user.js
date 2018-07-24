@@ -56,6 +56,24 @@ UserSchema.methods.generateAuthToken = function () {
 
 }
 
+UserSchema.statics.findByToken = function (token) {
+    var User = this;
+    var decoded;
+    try {
+        decoded = jwt.verify(token, 'abc123456');
+    } catch (e) {
+        return Promise.reject({message:"Invalid token"})
+    }
+
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
+    });
+
+
+};
+
 
 var User = mongoose.model('User', UserSchema);
 
