@@ -1,3 +1,4 @@
+require ('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
@@ -7,10 +8,11 @@ const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
 
+
 var app = express();
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 3000;
+var port = process.env.PORT;
 
 app.post('/todos', (req, res) => {
     var todo = new Todo({
@@ -90,11 +92,11 @@ app.patch('/todos/:id', (req, res) => {
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id, { $set:  body  }, { new: true })
+    Todo.findByIdAndUpdate(id, { $set: body }, { new: true })
         .then((doc) => {
 
-            if(!doc){
-                return res.status(404).send({message:"Not found"});
+            if (!doc) {
+                return res.status(404).send({ message: "Not found" });
             }
             res.send(doc);
 
