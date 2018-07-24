@@ -1,7 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
-const {ObjectID}  = require('mongodb');
+const { ObjectID } = require('mongodb');
 const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/user');
@@ -24,20 +24,20 @@ app.post('/todos', (req, res) => {
 });
 
 app.get('/todos/:id', (req, res) => {
-    
-    var id= req.params.id;
-    if(ObjectID.isValid(id)){
-    Todo.findById(req.params.id).then((todo)=>{
-        if(!todo){
-            res.status(404).send({"message":"Not found"})
-        }
-        res.send(todo);
-    }).catch((e)=>{
-        res.status(400).send(e);
-    });
-}else{
-    res.status(400).send({"message":"unable to find"});
-}
+
+    var id = req.params.id;
+    if (ObjectID.isValid(id)) {
+        Todo.findById(req.params.id).then((todo) => {
+            if (!todo) {
+                res.status(404).send({ "message": "Not found" })
+            }
+            res.send(todo);
+        }).catch((e) => {
+            res.status(400).send(e);
+        });
+    } else {
+        res.status(400).send({ "message": "unable to find" });
+    }
 });
 
 // GET todos
@@ -53,6 +53,24 @@ app.get('/todos', (req, res) => {
 
 });
 
+//DELETE todos/:id
+
+app.delete('/todos/:id', (req, res) => {
+    var id = req.params.id;
+    if (!ObjectID.isValid(id)) {
+
+        return res.status(404).send({message:"Invalid Id"});
+    }
+
+
+        Todo.findByIdAndRemove(id).then((doc) => {
+            res.send(doc);
+        }, (err) => {
+            res.send(err);
+        });
+ 
+  
+});
 //server port
 app.listen(port, () => {
     console.log(`server running on port ${port}`);
