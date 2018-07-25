@@ -57,12 +57,22 @@ UserSchema.methods.generateAuthToken = function () {
     });
 }
 
+UserSchema.methods.removeToken = function (token) {
+    var user = this;
+   return user.update({
+        $pull:{
+            tokens:{token}
+        }
+    })
+
+};
+
 // before save hash password
 UserSchema.pre('save', function (next) {
 
     var user = this;
     if (user.isModified('password')) {
-       
+
         bcrypt.genSalt(10, (err, salt) => {
             bcrypt.hash(user.password, salt, (err, hashed) => {
                 user.password = hashed;
