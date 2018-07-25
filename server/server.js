@@ -15,9 +15,11 @@ app.use(bodyParser.json());
 
 var port = process.env.PORT;
 
-app.post('/todos', (req, res) => {
+// POST /todos
+app.post('/todos', authenticate, (req, res) => {
     var todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creator: req.user._id
     });
 
     todo.save().then((doc) => {
@@ -27,11 +29,17 @@ app.post('/todos', (req, res) => {
     });
 });
 
-app.get('/todos/:id', (req, res) => {
+// GET todos/:id
+
+app.get('/todos/:id', authenticate, (req, res) => {
 
     var id = req.params.id;
     if (ObjectID.isValid(id)) {
-        Todo.findById(req.params.id).then((todo) => {
+
+        Todo.findOne({
+            _id: id,
+            _creator: req.user._id
+        }).then((todo) => {
             if (!todo) {
                 res.status(404).send({ "message": "Not found" })
             }
@@ -45,9 +53,11 @@ app.get('/todos/:id', (req, res) => {
 });
 
 // GET todos
-app.get('/todos', (req, res) => {
+app.get('/todos', authenticate, (req, res) => {
 
-    Todo.find().then((todos) => {
+    Todo.find({
+        _creator: req.user._id
+    }).then((todos) => {
 
         res.send({ todos });
 
@@ -59,7 +69,7 @@ app.get('/todos', (req, res) => {
 
 //DELETE todos/:id
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id;
     if (!ObjectID.isValid(id)) {
 
@@ -67,7 +77,10 @@ app.delete('/todos/:id', (req, res) => {
     }
 
 
-    Todo.findByIdAndRemove(id).then((doc) => {
+    Todo.findOneAndRemove({
+        _id: id,
+        _creator: req.user._id
+    }).then((doc) => {
         res.send(doc);
     }, (err) => {
         res.send(err);
@@ -78,7 +91,7 @@ app.delete('/todos/:id', (req, res) => {
 
 // PATCH /todos/:id
 
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
@@ -93,7 +106,11 @@ app.patch('/todos/:id', (req, res) => {
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id, { $set: body }, { new: true })
+    Todo.findOneAndUpdate({
+
+        _id: id,
+        _creator: req.user._id
+    }, { $set: body }, { new: true })
         .then((doc) => {
 
             if (!doc) {
@@ -155,7 +172,7 @@ app.get('/users/me', authenticate, (req, res) => {
 app.delete('/users/me/token', authenticate, (req, res) => {
 
     req.user.removeToken(req.token).then(() => {
-        res.send({message:"Logged out successfully."});
+        res.send({ message: "Logged out successfully." });
     }, (e) => {
         res.status(400).send(e);
     });
